@@ -9,6 +9,8 @@ Pobieramy repo
 
 Tworzymy srodowisko wirtualne
 ```python3 -m venv env```
+lub
+```python -m venv env```
 
 Uruchamiamy srodowisko (windows)
 ``` ./env/Scripts/activate ```
