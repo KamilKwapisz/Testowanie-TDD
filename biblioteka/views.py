@@ -1,11 +1,11 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.views.generic.detail import DetailView
 from django.views.generic import CreateView
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import UpdateView
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
-from django.views.generic.edit import UpdateView
 
 
 from biblioteka.models import Book, Author, Library
@@ -74,6 +74,35 @@ class AuthorCreateView(CreateView):
                 return super(AuthorCreateView, self).form_invalid(form)                
         else:
             return super(AuthorCreateView, self).form_invalid(form)
+
+
+class AuthorUpdateView(UpdateView):
+    model = Author
+    fields = ['name']
+    template_name = "create/createAuthor.html"
+    success_message = "Autor został utworzony."
+    success_url = reverse_lazy('biblioteka:index')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        if form.is_valid():
+            author = form.save(commit=False)
+            first_name = self.request.POST.get("name", None)
+            surname = self.request.POST.get("surname", None)
+            if first_name:
+                name = f"{first_name.strip()} {surname.strip()}"
+                if Author.objects.filter(name=name):
+                    return super(AuthorUpdateView, self).form_invalid(form)
+                author.name = name
+                author.save()
+                return super(AuthorUpdateView, self).form_valid(form)
+            else:
+                return super(AuthorUpdateView, self).form_invalid(form)                
+        else:
+            return super(AuthorUpdateView, self).form_invalid(form)
 
 
 
