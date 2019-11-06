@@ -4,7 +4,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic import CreateView
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
-from django.views.generic.edit import UpdateView
+from django.views.generic.edit import UpdateView, DeleteView
 
 from biblioteka.models import Book, Author, Library
 
@@ -23,6 +23,10 @@ class BookDetailView(DetailView):
 
 class BookCreateView(CreateView):
     model = Book
+    fields = ['title', 'genre', 'author', 'library']
+    template_name = "create/createBook.html"
+    success_message = "Książka została utworzona."
+    success_url = reverse_lazy('biblioteka:index')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -31,6 +35,22 @@ class BookCreateView(CreateView):
 
 class BookEditView(UpdateView):
     model = Book
+    fields = ['title', 'genre', 'author', 'library']
+    template_name = "edit/editAuthor.html"
+    success_message = "Książka została zedytowana."
+    success_url = reverse_lazy('biblioteka:index')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class BookDeleteView(DeleteView):
+    model = Book
+    fields = ['title', 'genre', 'author', 'library']
+    template_name = "delete/deleteAuthor.html"
+    success_message = "Książka została usunięta."
+    success_url = reverse_lazy('biblioteka:index')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -74,9 +94,24 @@ class AuthorCreateView(CreateView):
             return super(AuthorCreateView, self).form_invalid(form)
 
 
-
 class AuthorEditView(UpdateView):
     model = Author
+    fields = ['name']
+    template_name = "edit/editAuthor.html"
+    success_message = "Autor został zedytowany."
+    success_url = reverse_lazy('biblioteka:index')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class AuthorDeleteView(DeleteView):
+    model = Author
+    fields = ['name']
+    template_name = "delete/deleteAuthor.html"
+    success_message = "Autor został usunięty."
+    success_url = reverse_lazy('biblioteka:index')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -85,6 +120,8 @@ class AuthorEditView(UpdateView):
 
 class LibraryDetailView(DetailView):
     model = Library
+    fields = ['location']
+    template_name = ""
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -93,6 +130,10 @@ class LibraryDetailView(DetailView):
 
 class LibraryCreateView(CreateView):
     model = Library
+    fields = ['location']
+    template_name = "create/createLibrary.html"
+    success_message = "Biblioteka została dodana."
+    success_url = reverse_lazy('biblioteka:index')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -101,6 +142,22 @@ class LibraryCreateView(CreateView):
 
 class LibraryEditView(UpdateView):
     model = Library
+    fields = ['location']
+    template_name = "edit/editLibrary.html"
+    success_message = "Biblioteka została zedytowana."
+    success_url = reverse_lazy('biblioteka:index')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class LibraryDeleteView(DeleteView):
+    model = Library
+    fields = ['location']
+    template_name = "delete/deleteLibrary.html"
+    success_message = "Biblioteka została usunięa."
+    success_url = reverse_lazy('biblioteka:index')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
