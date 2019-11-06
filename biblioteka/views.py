@@ -47,10 +47,32 @@ class AuthorDetailView(DetailView):
 
 class AuthorCreateView(CreateView):
     model = Author
+    fields = ['name']
+    template_name = "create/createAuthor.html"
+    success_message = "Autor został utworzony."
+    success_url = reverse_lazy('biblioteka:index')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+    def form_valid(self, form):
+        if form.is_valid():
+            author = form.save(commit=False)
+            first_name = self.request.POST.get("name", None)
+            surname = self.request.POST.get("surname", None)
+            if first_name:
+                name = f"{first_name.strip()} {surname.strip()}"
+                if Author.objects.filter(name=name):
+                    return super(AuthorCreateView, self).form_invalid(form)
+                author.name = name
+                author.save()
+                return super(AuthorCreateView, self).form_valid(form)
+            else:
+                return super(AuthorCreateView, self).form_invalid(form)                
+        else:
+            return super(AuthorCreateView, self).form_invalid(form)
+
 
 
 class AuthorEditView(UpdateView):
