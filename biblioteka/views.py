@@ -1,10 +1,12 @@
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.views.generic.detail import DetailView
 from django.views.generic import CreateView
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from django.views.generic.edit import UpdateView
+
 
 from biblioteka.models import Book, Author, Library
 
@@ -113,6 +115,7 @@ class Register(CreateView):
     template_name = 'registration/register.html'
 
 
+@login_required(login_url='/login/')
 def profile(request):
     if not request.user.is_authenticated:
         return redirect('login')
