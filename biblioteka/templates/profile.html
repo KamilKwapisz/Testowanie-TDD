@@ -1,2 +1,7 @@
 <h2>Profile page</h2>
 <p>This is your profile page: {{username}}</p>
+
+<h4>Opcje:</h4>
+<a href="{% url 'biblioteka:library-list' %}">Lista bibliotek</a></br>
+<a href="{% url 'biblioteka:author-list' %}">Lista autorów</a></br>
+<a href="{% url 'biblioteka:book-list' %}">Lista książek</a></br>

@@ -80,7 +80,7 @@ class AuthorUpdateView(UpdateView):
     model = Author
     fields = ['name']
     template_name = "create/createAuthor.html"
-    success_message = "Autor został utworzony."
+    success_message = "Autor został zmieniony."
     success_url = reverse_lazy('biblioteka:index')
 
     def get_context_data(self, **kwargs):
