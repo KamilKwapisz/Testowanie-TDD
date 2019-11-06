@@ -40,7 +40,9 @@ class Author(models.Model):
         if type(book) != Book:
             raise ValueError("Given argument is not a Book object")
         self.books.add(book)
+        book.author = self
         self.save()
+        book.save()
     
     def publish_books(self, books):
         for book in books:
@@ -66,7 +68,9 @@ class Library(models.Model):
         if type(book) != Book:
             raise ValueError("Given argument is not a Book object")
         self.books.add(book)
+        book.library = self
         self.save()
+        book.save()
     
     def add_books(self, books):
         for book in books:

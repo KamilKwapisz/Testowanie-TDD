@@ -1,5 +1,7 @@
-from django.test import TestCase
+from django.contrib.auth.models import User
+from django.test import Client, TestCase
 from django.db.utils import IntegrityError
+from django.urls import reverse
 
 from biblioteka.models import Author, Book, Library
 from biblioteka.utils import *
@@ -228,7 +230,7 @@ class AuthorTestCase(TestCase):
         self.author.publish_book(book)
 
         # When
-        author = Author.objects.filter(name=self.name)
+        author = Author.objects.get(name=self.name)
         books = author.books.all()
 
         # Then
@@ -264,7 +266,7 @@ class AuthorTestCase(TestCase):
         self.author.publish_books(books_list)
 
         # When
-        author = Author.objects.filter(name=self.name)
+        author = Author.objects.get(name=self.name)
         books = author.books.all()
 
         # Then
@@ -292,7 +294,7 @@ class AuthorTestCase(TestCase):
         self.author.publish_books(books_list)
 
         # When
-        author = Author.objects.filter(name=self.name)
+        author = Author.objects.get(name=self.name)
         books = author.books.all()
 
         # Then
@@ -304,8 +306,8 @@ class AuthorTestCase(TestCase):
         title = "Jak nie sprzedawać praw do dzieła, czyli jaki stracić miliony"
         genre = "byznes"
         book = Book.objects.create(
-            title=title2, 
-            genre=genre2, 
+            title=title, 
+            genre=genre, 
             author=self.author
         )
         books_list = [book, "Jakiś tam tytuł"]
@@ -314,8 +316,6 @@ class AuthorTestCase(TestCase):
         
 
 class UtilsTestCase(TestCase):
-    def setUp(self):
-        pass
 
     def test_add_author_with_name_only(self):
         # Given
@@ -358,9 +358,41 @@ class UtilsTestCase(TestCase):
 
         # Then
         self.assertIsNotNone(book)
+        self.assertEqual(type(book), Book)
         self.assertEqual(book.title, title)
         self.assertEqual(book.genre, genre)
         self.assertEqual(book.author, author)
+
+    def test_add_book_with_wrong_autor_object(self):
+        # Given
+        title = "Jak zdobyć bogactwo"
+        genre = "biznes"
+        author_name = "Felix Dennis"
+
+        with self.assertRaises(ValueError):
+            add_book(title, genre, author_name)
+            
+    def test_add_book_with_wrong_title(self):
+        # Given
+        title = 4.3241
+        genre = "biznes"
+        author_name = "Felix Dennis"
+        author = Author.objects.create(name=author_name)
+
+        with self.assertRaises(ValueError):
+            add_book(title, genre, author_name)
+            
+
+    def test_add_book_with_bad_autor_object(self):
+        # Given
+        title = "Jak zdobyć bogactwo"
+        genre = True
+        author_name = "Felix Dennis"
+        author = Author.objects.create(name=author_name)
+
+        with self.assertRaises(ValueError):
+            add_book(title, genre, author_name)
+            
 
     # def test_add_book_to_author(self):
     #     # Given
@@ -398,6 +430,18 @@ class UtilsTestCase(TestCase):
         self.assertEqual(books[0], book1)
         self.assertEqual(books[1], book2)
 
+    def test_view_books_by_author_with_wrong_name(self):
+        self.name = "Null Pointer"
+        with self.assertRaises(ValueError):
+            view_books_by_author(self.name)
+            
+
+    def test_view_books_in_library_with_wrong_location_type(self):
+        self.name = 3.14
+        with self.assertRaises(ValueError):
+            view_books_by_author(self.name)
+            
+    
     def test_view_books_in_library(self):
         # Given
         author = add_author(name="Tim Ferriss")
@@ -423,6 +467,16 @@ class UtilsTestCase(TestCase):
         self.assertEqual(len(books), 2)
         self.assertEqual(books[0], book1)
         self.assertEqual(books[1], book2)
+
+    def test_view_books_in_library_with_wrong_location(self):
+        self.location = "Null Pointer 00"
+        with self.assertRaises(ValueError):
+            view_books_in_library(self.location)
+
+    def test_view_books_in_library_with_wrong_location_type(self):
+        self.location = 3.14
+        with self.assertRaises(ValueError):
+            view_books_in_library(self.location)
 
     def test_count_titles(self):
         # Given
@@ -482,6 +536,18 @@ class UtilsTestCase(TestCase):
         self.assertEqual(len(titles), 2)
         self.assertEqual(titles[0], title1)
         self.assertEqual(titles[1], title2)
+    
+    def test_view_titles_by_author_with_wrong_name(self):
+        self.name = "Null Pointer"
+        with self.assertRaises(ValueError):
+            view_titles_by_author(self.name)
+            
+
+    def test_titles_by_author_with_wrong_name_type(self):
+        self.name = 3.14
+        with self.assertRaises(ValueError):
+            view_titles_by_author(self.name)
+            
 
     def test_find_libraries_with_book(self):
         # Given
@@ -508,3 +574,28 @@ class UtilsTestCase(TestCase):
         self.assertEqual(libraries_with_book[0], library1)
         self.assertEqual(libraries_with_book[1], library2)
         self.assertEqual(libraries_with_book[2], library3)
+
+    def test_find_libraries_with_book_with_wrong_name_type(self):
+        self.book = 3.14
+        with self.assertRaises(ValueError):
+            find_libraries_with_book(self.book)
+            
+
+class LoginTestCase(TestCase):
+    def setUp(self):
+        self.username = "test"
+        self.password = 'pass@123#'
+        self.email = "test@test.com"
+        self.user = User.objects.create(username=self.username, password=self.password, email=self.email)
+        self.client = Client()
+
+    def test_profile_view_with_logged_user(self):
+        self.client.login(username=self.username, password=self.password)
+        response = self.client.get(reverse('biblioteka:profile'), follow=True)
+        self.assertEqual(response.status_code, 200)
+
+    def test_profile_view_without_logged_user(self):
+        response = self.client.get('/profile/', follow=False)
+        self.assertEqual(response.status_code, 302)
+        response = self.client.get('/profile/', follow=True)
+        self.assertEqual(len(response.redirect_chain), 1)
