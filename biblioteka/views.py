@@ -3,8 +3,8 @@ from django.http import HttpResponse
 from django.views.generic.detail import DetailView
 from django.views.generic import CreateView
 from django.urls import reverse_lazy
-from django.views.decorators.debug import sensitive_variables, sensitive_post_parameters
 from django.shortcuts import render, redirect
+from django.views.generic.edit import UpdateView
 
 from biblioteka.models import Book, Author, Library
 
@@ -14,7 +14,22 @@ def index(request):
 
 
 class BookDetailView(DetailView):
+    model = Book
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class BookCreateView(CreateView):
+    model = Book
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class BookEditView(UpdateView):
     model = Book
 
     def get_context_data(self, **kwargs):
@@ -23,7 +38,22 @@ class BookDetailView(DetailView):
 
 
 class AuthorDetailView(DetailView):
+    model = Author
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class AuthorCreateView(CreateView):
+    model = Author
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class AuthorEditView(UpdateView):
     model = Author
 
     def get_context_data(self, **kwargs):
@@ -32,7 +62,22 @@ class AuthorDetailView(DetailView):
 
 
 class LibraryDetailView(DetailView):
+    model = Library
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class LibraryCreateView(CreateView):
+    model = Library
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class LibraryEditView(UpdateView):
     model = Library
 
     def get_context_data(self, **kwargs):
