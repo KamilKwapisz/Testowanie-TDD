@@ -58,17 +58,9 @@ class BookDeleteView(DeleteView):
         return context
 
 
-class AuthorDetailView(DetailView):
-    model = Author
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
-
 class AuthorCreateView(CreateView):
     model = Author
-    fields = ['name']
+    fields = ['name', 'books']
     template_name = "create/createAuthor.html"
     success_message = "Autor został utworzony."
     success_url = reverse_lazy('biblioteka:index')
@@ -97,7 +89,7 @@ class AuthorCreateView(CreateView):
 
 class AuthorEditView(UpdateView):
     model = Author
-    fields = ['name']
+    fields = ['name', 'books']
     template_name = "create/createAuthor.html"
     success_message = "Autor został zmieniony."
     success_url = reverse_lazy('biblioteka:index')
@@ -136,19 +128,9 @@ class AuthorDeleteView(DeleteView):
         return context
 
 
-class LibraryDetailView(DetailView):
-    model = Library
-    fields = ['location']
-    template_name = ""
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
-
 class LibraryCreateView(CreateView):
     model = Library
-    fields = ['location']
+    fields = ['location', 'books']
     template_name = "create/createLibrary.html"
     success_message = "Biblioteka została dodana."
     success_url = reverse_lazy('biblioteka:index')
@@ -160,7 +142,7 @@ class LibraryCreateView(CreateView):
 
 class LibraryEditView(UpdateView):
     model = Library
-    fields = ['location']
+    fields = ['location', 'books']
     template_name = "edit/editLibrary.html"
     success_message = "Biblioteka została zedytowana."
     success_url = reverse_lazy('biblioteka:index')
@@ -172,7 +154,7 @@ class LibraryEditView(UpdateView):
 
 class LibraryDeleteView(DeleteView):
     model = Library
-    fields = ['location']
+    fields = ['location', 'books']
     template_name = "delete/deleteLibrary.html"
     success_message = "Biblioteka została usunięa."
     success_url = reverse_lazy('biblioteka:index')
