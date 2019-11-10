@@ -16,27 +16,40 @@
             Book Title
         </dt>
         <dd class="col-sm-10">
-            {{ book.title }}
+            {{ object.title }}
         </dd>
         <dt class="col-sm-2">
             Book Author
         </dt>
         <dd class="col-sm-10">
-            {{ book.author }}
+            {{ object.author }}
         </dd>
         <dt class="col-sm-2">
             Book genre
         </dt>
         <dd class="col-sm-10">
-            {{ book.genre }}
+            {{ object.genre }}
         </dd>
         <dt class="col-sm-2">
             Library
         </dt>
         <dd class="col-sm-10">
-            {{ book.library }}
+            {{ object.library }}
         </dd>
     </dl>
+    {% if libraries %}
+        Biblioteki, w których możesz znaleźć tę książkę:
+        <ul>
+            {% for lib in libraries%}
+                <a href="{% url 'biblioteka:library-detail' lib.pk %}">"{{lib.location}}"</a>
+            {% endfor %}
+        </ul>
+    {% else %}
+        Aktualnie książki nie ma w żadnej z bibliotek.
+    {% endif %}
+    </br>
+    <a href="{% url 'biblioteka:book-delete' object.pk %}">USUŃ KSIĄŻKĘ</a>
+ 
 </div>
 </body>
 </html>

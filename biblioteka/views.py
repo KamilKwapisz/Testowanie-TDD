@@ -9,14 +9,16 @@ from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic import ListView
 
 from biblioteka.models import Book, Author, Library
+from biblioteka.utils import *
 
 
 def index(request):
-    return HttpResponse("Hello, world!")
+    return redirect('biblioteka:profile')
 
 
 class BookDetailView(DetailView):
     model = Book
+    template_name = "detail/detailBook.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -25,14 +27,30 @@ class BookDetailView(DetailView):
 
 class BookCreateView(CreateView):
     model = Book
-    fields = ['title', 'genre', 'author', 'library']
+    fields = ['title', 'genre']
     template_name = "create/createBook.html"
     success_message = "Książka została utworzona."
-    success_url = reverse_lazy('biblioteka:index')
+    success_url = reverse_lazy('biblioteka:book-list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+    def form_valid(self, form):
+        if form.is_valid():
+            book = form.save(commit=False)
+            title = self.request.POST.get("title", None)
+            genre = self.request.POST.get("genre", None)
+            author_pk = self.kwargs['author_pk']
+            author = Author.objects.get(pk=author_pk)
+            print(title, genre, author.name)
+            book.title = title
+            book.genre = title
+            book.author = author
+            book.save()
+            return super(BookCreateView, self).form_valid(form)
+        else:
+            return super(BookCreateView, self).form_invalid(form)
 
 
 class BookEditView(UpdateView):
@@ -40,7 +58,7 @@ class BookEditView(UpdateView):
     fields = ['title', 'genre', 'author', 'library']
     template_name = "edit/editAuthor.html"
     success_message = "Książka została zedytowana."
-    success_url = reverse_lazy('biblioteka:index')
+    success_url = reverse_lazy('biblioteka:book-list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -52,44 +70,35 @@ class BookDeleteView(DeleteView):
     fields = ['title', 'genre', 'author', 'library']
     template_name = "delete/deleteAuthor.html"
     success_message = "Książka została usunięta."
-    success_url = reverse_lazy('biblioteka:index')
+    success_url = reverse_lazy('biblioteka:book-list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
 
 
-class BookListView(ListView):
-    model = Book
-    fields = ['title', 'genre', 'author', 'library']
-    template_name = "books.html"
-    success_url = reverse_lazy('biblioteka:index')
+def books_list(request):
+    books = Book.objects.all()
+    context = {'books': books}
+    return render(request, "list/books.html", context)
+
+
+class AuthorDetailView(DetailView):
+    model = Author
+    template_name = "detail/detailAuthor.html"
 
     def get_context_data(self, **kwargs):
+        author_books = view_books_by_author(self.get_object())
         context = super().get_context_data(**kwargs)
+        context['author_books'] = author_books
         return context
-
-    def index(self):
-        data = Book.objects.all()
-        return render(self.request, self.template_name, {'books': data})
-
-    def booksInLibrary(self):
-        libId = self.request.GET["id"]
-        data = Book.objects.all().filter((Book.library.id == libId))
-        return render(self.request, self.template_name, {'books': data})
-
-    def authorBooks(self):
-        authorId = self.request.GET["id"]
-        data = Book.objects.all().filter((Book.author.id == authorId))
-        return render(self.request, self.template_name, {'books': data})
-
 
 class AuthorCreateView(CreateView):
     model = Author
     fields = ['name', 'books']
     template_name = "create/createAuthor.html"
     success_message = "Autor został utworzony."
-    success_url = reverse_lazy('biblioteka:index')
+    success_url = reverse_lazy('biblioteka:author-list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -118,7 +127,7 @@ class AuthorEditView(UpdateView):
     fields = ['name', 'books']
     template_name = "create/createAuthor.html"
     success_message = "Autor został zmieniony."
-    success_url = reverse_lazy('biblioteka:index')
+    success_url = reverse_lazy('biblioteka:author-list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -147,38 +156,52 @@ class AuthorDeleteView(DeleteView):
     fields = ['name']
     template_name = "delete/deleteAuthor.html"
     success_message = "Autor został usunięty."
-    success_url = reverse_lazy('biblioteka:index')
+    success_url = reverse_lazy('biblioteka:author-list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
 
 
-class AuthorListView(ListView):
-    model = Author
-    fields = ['name']
-    template_name = "authors.html"
-    success_url = reverse_lazy('biblioteka:index')
+def authors_list(request):
+    authors = Author.objects.all()
+    context = {'authors': authors}
+    return render(request, "list/authors.html", context)
+
+
+class LibraryDetailView(DetailView):
+    model = Library
+    template_name = "detail/detailLibrary.html"
 
     def get_context_data(self, **kwargs):
+        titles = count_titles(self.get_object())
+        books = view_books_in_library(self.get_object())
         context = super().get_context_data(**kwargs)
+        context['titles'] = titles
+        context['books'] = books
         return context
-
-    def index(self):
-        data = Author.objects.all()
-        return render(self.request, self.template_name, {'authors': data})
 
 
 class LibraryCreateView(CreateView):
     model = Library
-    fields = ['location', 'books']
+    fields = ['location']
     template_name = "create/createLibrary.html"
     success_message = "Biblioteka została dodana."
-    success_url = reverse_lazy('biblioteka:index')
+    success_url = reverse_lazy('biblioteka:library-list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+    def form_valid(self, form):
+        if form.is_valid():
+            lib = form.save(commit=False)
+            location = self.request.POST.get("location", None)
+            lib.location = location
+            lib.save()
+            return super(LibraryCreateView, self).form_valid(form)
+        else:
+            return super(LibraryCreateView, self).form_invalid(form)
 
 
 class LibraryEditView(UpdateView):
@@ -186,7 +209,7 @@ class LibraryEditView(UpdateView):
     fields = ['location', 'books']
     template_name = "edit/editLibrary.html"
     success_message = "Biblioteka została zedytowana."
-    success_url = reverse_lazy('biblioteka:index')
+    success_url = reverse_lazy('biblioteka:library-list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -198,32 +221,17 @@ class LibraryDeleteView(DeleteView):
     fields = ['location', 'books']
     template_name = "delete/deleteLibrary.html"
     success_message = "Biblioteka została usunięa."
-    success_url = reverse_lazy('biblioteka:index')
+    success_url = reverse_lazy('biblioteka:library-list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
 
 
-class LibraryListView(ListView):
-    model = Library
-    fields = ['location', 'books']
-    template_name = "libraries.html"
-    success_url = reverse_lazy('biblioteka:index')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
-    def index(self):
-        data = Library.objects.all()
-        return render(self.request, self.template_name, {'libraries': data})
-
-    def libraryWithBook(self):
-        bookId = self.request.GET["id"]
-        book = Book.objects.get(id == bookId)
-        data = Library.objects.all().filter((Library.books.get(book).id == bookId))
-        return render(self.request, self.template_name, {'libraries': data})
+def libraries_list(request):
+    libraries = Library.objects.all()
+    context = {'libraries': libraries}
+    return render(request, "list/libraries.html", context)
 
 
 class Register(CreateView):

@@ -18,10 +18,12 @@
             Author name
         </dt>
         <dd class="col-sm-10">
-            {{ author.name }}
+            {{ object.name }}
         </dd>
     </dl>
+
     <form method="post">
+        {% csrf_token %}
         <input type="submit" value="Delete" class="btn btn-danger" />
     </form>
 </div>
