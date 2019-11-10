@@ -33,13 +33,3 @@ Uruchamiamy serwer:
 Uruchamianie testow:
 ```python manage.py test```
 
-# TODO
-* Testy logowania
-* Dopisanie przetestowanych metod z utils.py
-* Widok z formularzem szukania książki w bibliotekach
-* Widok z ksiązkami danego autora
-* Widok z listą bibliotek
-* Widok z listą książek z podanymi bibliotekami i autorami
-* Widok dodawania książek
-* Widok dodawania bibliotek
-* Widok dodawania autorów
