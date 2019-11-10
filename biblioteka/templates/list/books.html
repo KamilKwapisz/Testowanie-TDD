@@ -1,0 +1,11 @@
+{% if books %}
+    Książki:
+    <ul>
+        {% for book in books %}
+            <li><a href="{% url 'biblioteka:book-detail' book.pk %}">"{{book.title}}" - {{book.author.name}}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+Brak książek!</br>
+{% endif %}

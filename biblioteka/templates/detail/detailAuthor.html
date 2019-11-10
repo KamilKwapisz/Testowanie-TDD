@@ -1,0 +1,15 @@
+Author: {{object.name}}</br>
+
+{% if author_books %}
+    Ksiązki autora:
+    <ul>
+    {% for book in author_books %}
+        <li><a href="{% url 'biblioteka:book-detail' book.pk %}">"{{book.title}}"</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    Brak książek danego autora!
+{% endif %}
+</br>
+<a href="{% url 'biblioteka:book-create' author_pk=object.pk %}">Dodaj nową książkę</a></br>
+<a href="{% url 'biblioteka:author-delete' object.pk %}">USUŃ AUTORA</a>

@@ -1,0 +1,13 @@
+{% if authors %}
+Autorzy:
+    <ul>
+        {% for author in authors %}
+            <li><a href="{% url 'biblioteka:author-detail' author.pk %}">{{author.name}}</a>
+                
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+Brak autorów!</br>
+{% endif %}
+<a href="{% url 'biblioteka:author-create' %}">Dodaj nowego autora</a>

@@ -1,0 +1,21 @@
+Biblioteka na ul. {{object.location}}
+</br></br>
+{% if titles %}
+    Książki w bibliotece:
+    <ul>
+        {% for title, count in titles.items %}
+            <li>{{title}}: {{count}} książek</li>
+        {% endfor %}
+    </ul>
+
+</br>
+    Poszczególne pozycje:
+    <ul>
+        {% for book in books %}
+            <li>{{book.author.name}} - {{book.title}}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+Brak książek w bibliotece.
+{% endif %}
+<a href="{% url 'biblioteka:library-delete' library.pk %}">USUŃ BIBLIOTEKĘ</a>
