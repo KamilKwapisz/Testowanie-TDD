@@ -6,6 +6,7 @@ from django.views.generic.detail import DetailView
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from django.views.generic.edit import UpdateView, DeleteView
+from django.views.generic import ListView
 
 from biblioteka.models import Book, Author, Library
 
@@ -56,6 +57,31 @@ class BookDeleteView(DeleteView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+
+class BookListView(ListView):
+    model = Book
+    fields = ['title', 'genre', 'author', 'library']
+    template_name = "books.html"
+    success_url = reverse_lazy('biblioteka:index')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def index(self):
+        data = Book.objects.all()
+        return render(self.request, self.template_name, {'books': data})
+
+    def booksInLibrary(self):
+        libId = self.request.GET["id"]
+        data = Book.objects.all().filter((Book.library.id == libId))
+        return render(self.request, self.template_name, {'books': data})
+
+    def authorBooks(self):
+        authorId = self.request.GET["id"]
+        data = Book.objects.all().filter((Book.author.id == authorId))
+        return render(self.request, self.template_name, {'books': data})
 
 
 class AuthorCreateView(CreateView):
@@ -128,6 +154,21 @@ class AuthorDeleteView(DeleteView):
         return context
 
 
+class AuthorListView(ListView):
+    model = Author
+    fields = ['name']
+    template_name = "authors.html"
+    success_url = reverse_lazy('biblioteka:index')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def index(self):
+        data = Author.objects.all()
+        return render(self.request, self.template_name, {'authors': data})
+
+
 class LibraryCreateView(CreateView):
     model = Library
     fields = ['location', 'books']
@@ -162,6 +203,27 @@ class LibraryDeleteView(DeleteView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+
+class LibraryListView(ListView):
+    model = Library
+    fields = ['location', 'books']
+    template_name = "libraries.html"
+    success_url = reverse_lazy('biblioteka:index')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def index(self):
+        data = Library.objects.all()
+        return render(self.request, self.template_name, {'libraries': data})
+
+    def libraryWithBook(self):
+        bookId = self.request.GET["id"]
+        book = Book.objects.get(id == bookId)
+        data = Library.objects.all().filter((Library.books.get(book).id == bookId))
+        return render(self.request, self.template_name, {'libraries': data})
 
 
 class Register(CreateView):

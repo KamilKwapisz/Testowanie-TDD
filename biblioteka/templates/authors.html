@@ -1,6 +1,6 @@
-{% if libraries %}
+{% if authors %}
     <ul>
-        {% for author in libraries %}
+        {% for author in authors %}
             <li><a href="{% url 'biblioteka:author-detail' author.pk %}">{{author.name}}</a>
                 <a href="{% url 'biblioteka:author-delete' author.pk %}">USUŃ</a>
                 <a href="{% url 'biblioteka:books-by-author' author.pk %}">Zobacz książki autora</a>
