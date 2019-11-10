@@ -24,6 +24,9 @@ Migracje:
 ``` python manage.py makemigrations```
 ```python manage.py migrate```
 
+Jeżeli nadal występuje komunikat o braku tabeli:
+``` python manage.py migrate --run-syncdb ```
+
 Uruchamiamy serwer:
 ```python manage.py runserver```
 
