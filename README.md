@@ -24,19 +24,12 @@ Migracje:
 ``` python manage.py makemigrations```
 ```python manage.py migrate```
 
+Jeżeli nadal występuje komunikat o braku tabeli:
+``` python manage.py migrate --run-syncdb ```
+
 Uruchamiamy serwer:
 ```python manage.py runserver```
 
 Uruchamianie testow:
 ```python manage.py test```
 
-# TODO
-* Testy logowania
-* Dopisanie przetestowanych metod z utils.py
-* Widok z formularzem szukania książki w bibliotekach
-* Widok z ksiązkami danego autora
-* Widok z listą bibliotek
-* Widok z listą książek z podanymi bibliotekami i autorami
-* Widok dodawania książek
-* Widok dodawania bibliotek
-* Widok dodawania autorów
